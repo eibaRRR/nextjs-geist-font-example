@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Dashboard Summary -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">Tableau de Bord</h2>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-blue-50 p-4 rounded">
+                <h3 class="text-lg font-semibold">Total des Livres</h3>
+                <p class="text-3xl text-blue-600">{{ books|length }}</p>
+            </div>
+            <div class="bg-green-50 p-4 rounded">
+                <h3 class="text-lg font-semibold">Emprunts Actifs</h3>
+                <p class="text-3xl text-green-600">{{ loans|length }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">Actions Rapides</h2>
+        <div class="space-y-4">
+            <a href="{{ url_for('add_book') }}" 
+               class="block w-full text-center bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                Ajouter un Nouveau Livre
+            </a>
+            <a href="{{ url_for('view_books') }}" 
+               class="block w-full text-center bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
+                Consulter les Livres
+            </a>
+            <a href="{{ url_for('manage_loans') }}" 
+               class="block w-full text-center bg-yellow-600 text-white py-2 px-4 rounded hover:bg-yellow-700">
+                Gérer les Emprunts
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Books -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">Livres Récents</h2>
+        <div class="space-y-2">
+            {% set count = [0] %}
+            {% for book_id, book_data in books.items()|reverse %}
+                {% if count[0] < 5 %}
+                    {% set title, author, quantity, available = book_data %}
+                    <div class="border-b pb-2">
+                        <h3 class="font-semibold">{{ title }}</h3>
+                        <p class="text-gray-600">par {{ author }}</p>
+                        <p class="text-sm text-gray-500">Disponible: {{ available }}/{{ quantity }}</p>
+                    </div>
+                    {% set _ = count.append(count.pop() + 1) %}
+                {% endif %}
+            {% else %}
+                <p class="text-gray-500">Aucun livre dans la bibliothèque</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Active Loans -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">Emprunts Actifs</h2>
+        <div class="space-y-2">
+            {% for loan_id, loan_data in loans.items() %}
+            {% set book_id, borrower, borrow_date, return_date = loan_data %}
+            <div class="border-b pb-2">
+                <h3 class="font-semibold">{{ books[book_id][0] }}</h3>
+                <p class="text-gray-600">Emprunteur: {{ borrower }}</p>
+                <p class="text-sm text-gray-500">Retour prévu: {{ return_date }}</p>
+            </div>
+            {% else %}
+            <p class="text-gray-500">Aucun emprunt actif</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
